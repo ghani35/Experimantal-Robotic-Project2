@@ -107,27 +107,26 @@ There are four states in this state diagram, the task of each state is explained
 
 # 3. Instalation and running procedures
 1. Clone the repository in your work_space `git clone https://github.com/ghani35/Experimental-robotics-Ass1.git`
-2. go to `/root/your_work_space/src/assignment/parameters`, open `parameters.yaml` file 
-3. Change the path to `path = '/root/your_work_space/src/assignment/src/topological_map.owl'` 
-5. (optional!) Change the other parameters if you want to test some relevent parts of the code
-6. If you do not have [smach_package](http://wiki.ros.org/smach/Tutorials/Getting%20Started), run this command:
+2. go to `/root/your_work_space/src/assignment2_Exporo/assignment2/parameters`, open `parameters.yaml` file 
+3. Change the path to `path = '/root/your_ws/src/assignment2_Exporo/assignment2/src/topological_map.owl'` 
+4. (optional!) Change the other parameters if you want to test some relevent parts of the code
+5. If you do not have [smach_package](http://wiki.ros.org/smach/Tutorials/Getting%20Started), run this command:
  `sudo apt-get install ros-noetic-smach-ros`
 6. If you do not have armor installed, follow this git hub repository 
 `https://github.com/EmaroLab/armor_rds_tutorial.git`
-7. Open new terminal and run `roslaunch assignment solution.launch`
+7. Open new terminal and run `roslaunch assignment2 assignment.launch`
 * When you run this command, three windows and the should pop-up
-  1. user_interface.py
-  2. state_machine.py
-  3. battery.py
-  * user_inerface.py: allows you to load the ontology, and notify the algorithm if the map is fully loaded
-  * state_machine.py: prints the state transition of the robot, helps you to understand and debug 
-  * battery.py: allows you to monitor the state of the batter
+  1. state_machine.py
+  2. battery.py
+  3. marker_server
+  4. marker_publisher
+  5. gazebo simulation 
+  6. rviz 
+  
 8. In another terminal run the smach_viewer to visualize the state machine
 `rosrun smach_viewer smach_viewer.py` 
-9. If you want to **SKIP** the part of filing the map from **user_interfaca.py**, you can use `topological_map_loaded.owl` instead of `topological_map.owl`
-   All the you have to do is to **set the path** from step **2** to
-   `path = '/root/your_work_space/src/assignment/src/topological_map_loaded.owl'`
-10. Once you launch the nodes to teste, the `topological_map_loaded` will change, so if you to test again you have to start from the same topology, hence you need to copy the starting ontology when the map is fully loaded from `topolofical_map_loaded_initial` to `topological_map_laoded`.
+
+
 # 4. A small video showing the relevent parts of the running code
 https://user-images.githubusercontent.com/91313196/198888618-3acce94f-d051-485e-9753-c39f3e8622dd.mp4
 
