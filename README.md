@@ -52,19 +52,23 @@ The finit-state machine is built in ROS environment based on [SMACH](http://wiki
  # 2. Discreption of software architecture 
  ## Component diagram 
 ![diagram (1)](https://user-images.githubusercontent.com/91313196/209484116-8ebc2832-6c4f-4a04-bc5f-a4f6a7cfb3d3.png)
-
-
- ### 2- state_machine
+ ### 1- Marker publisher
+Marker publisher: subscribes to the topic of the camera and do image processing to get an aruco marker ID, then it send a request with the marker ID to Marker server. Based on the response it modifies the topological ontology  
+ ### 2- Marker server
+It is a dictionary for the aruco markers* SLAM: build the map, localizing the robot and navigation based on move_base action server 
+ ### 3- state_machine
 It controlls how the robot changes its state based on the reasoning of the topological ontology, and the battery state of the robot. This node subscribes to two topics `/battery_state` and `/map_state`, and it calls the armor server for updating the loaded ontology. The states of the robot are listed bellow.
   * filling_map
   * moving_in_corridors
   * visiting_urgent
   * charging
- 
- ### 3- battery_controller 
+ ### 4- battery_controller 
  This is a publisher to the topic `/baterry_state`, it publishes different state of the battery `True`or`False` in a specific duration, the durations to be full or low are passed as **parameters**.
- ### 4- armor
+ ### 5- armor
  The ARMOR package is an external package used to communicate with the Cluedo OWL ontology, it is a ROS wrapper that helps to make this communication possible. For more information about ARMOR [click here](https://github.com/EmaroLab/armor_rds_tutorial)
+ ### 5- SLAM
+ Building the map, localizing the robot and navigation based on move_base action server
+ 
  ### List of parameters 
  It is a **yaml** file that list all the parameters used in this project which are 
  * time_to_stay_in_location defeault value = 1 (s)
@@ -84,8 +88,16 @@ It controlls how the robot changes its state based on the reasoning of the topol
 * Battry_state.msg: `int32 battery_state`, carry the state of the battery
   * It is 1 if the battery is full
   * It is 0 if the battery is low
+* RoomConnection
+  * connected_to
+  * through_door
+
+### List of messages 
+* RoomInformation 
+
 ## State diagram 
 ![image](https://user-images.githubusercontent.com/91313196/198852520-90de1eb7-e835-48dc-acd0-007a13d0e306.png)
+
 
 There are four states in this state diagram, the task of each state is explained below:
 1. **Filling_Map**: The robots keeps waiting in room **E** untill the whole map is loaded, the robot can know if the map is fully loaded by subscribing to the topic `/map_state`. When the map is fully loaded the robot go to `MOVING_IN_CORRIDORS` state trough the transition `move`.
