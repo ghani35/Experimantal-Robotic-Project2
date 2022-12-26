@@ -1,0 +1,289 @@
+/*****************************
+ Copyright 2011 Rafael Muñoz Salinas. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without modification, are
+ permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this list of
+ conditions and the following disclaimer.
+
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ of conditions and the following disclaimer in the documentation and/or other materials
+ provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY Rafael Muñoz Salinas ''AS IS'' AND ANY EXPRESS OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Rafael Muñoz Salinas OR
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ The views and conclusions contained in the software and documentation are those of the
+ authors and should not be interpreted as representing official policies, either expressed
+ or implied, of Rafael Muñoz Salinas.
+ ********************************/
+/**
+ * @file marker_publish.cpp
+ * @author Bence Magyar
+ * @date June 2014
+ * @brief Modified copy of simple_single.cpp to publish all markers visible
+ * (modified by Josh Langsfeld, 2014)
+ */
+
+//dfdddfd
+#include <iostream>
+#include <aruco/aruco.h>
+#include <aruco/cvdrawingutils.h>
+#include <ros/ros.h>
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/image_encodings.h>
+#include <assignment2/RoomInformation.h> // customized service 
+#include <assignment2/Map_state.h>
+#include <moveit/move_group_interface/move_group_interface.h>
+
+//moveit::planning_interface::MoveGroupInterface move_group("arm");
+
+ros::ServiceClient client;
+ros::Publisher pub_map;
+assignment2::RoomInformation srv;
+assignment2::Map_state map_state;
+
+
+int marker11=0,marker12=0,marker13=0,marker14=0,marker15=0,marker16=0,marker17=0,markerid=0;
+float x=0.0;
+int start=0;
+
+class ArucoMarkerPublisher
+{
+private:
+  // ArUco stuff
+  aruco::MarkerDetector mDetector_;
+  std::vector<aruco::Marker> markers_;
+  aruco::CameraParameters camParam_;
+
+  // node params
+  double marker_size_;
+  bool useCamInfo_;
+
+  // ROS pub-sub
+  ros::NodeHandle nh_;
+  image_transport::ImageTransport it_;
+  image_transport::Subscriber image_sub_;
+
+  image_transport::Publisher image_pub_;
+  image_transport::Publisher debug_pub_;
+
+  cv::Mat inImage_;
+  
+public:
+  ArucoMarkerPublisher() :
+      nh_("~"), it_(nh_), useCamInfo_(true)
+  {
+    image_sub_ = it_.subscribe("/image", 1, &ArucoMarkerPublisher::image_callback, this);
+    image_pub_ = it_.advertise("result", 1);
+    debug_pub_ = it_.advertise("debug", 1);
+    
+    nh_.param<bool>("use_camera_info", useCamInfo_, false);
+    camParam_ = aruco::CameraParameters();
+  }
+
+  void image_callback(const sensor_msgs::ImageConstPtr& msg)
+  {
+    ros::AsyncSpinner spinner(1);
+  spinner.start();
+  
+    bool publishImage = image_pub_.getNumSubscribers() > 0;
+    bool publishDebug = debug_pub_.getNumSubscribers() > 0;
+
+    ros::Time curr_stamp = msg->header.stamp;
+    cv_bridge::CvImagePtr cv_ptr;
+    
+    try
+    {
+      cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+      inImage_ = cv_ptr->image;
+   
+      // clear out previous detection results
+      markers_.clear();
+
+      // ok, let's detect
+      mDetector_.detect(inImage_, markers_, camParam_, marker_size_, false);
+
+		std::cout << "The id of the detected marker detected is: ";
+
+        for (std::size_t i = 0; i < markers_.size(); ++i)
+        {
+          std::cout << markers_.at(i).id << " ";
+          markerid= markers_.at(i).id;
+        }
+        std::cout << std::endl;
+
+      // draw detected markers on the image for visualization
+      for (std::size_t i = 0; i < markers_.size(); ++i)
+      {
+        markers_[i].draw(inImage_, cv::Scalar(0, 0, 255), 2);
+      }
+      // publish input image with markers drawn on it
+      if (publishImage)
+      {
+        // show input with augmented information
+        cv_bridge::CvImage out_msg;
+        out_msg.header.stamp = curr_stamp;
+        out_msg.encoding = sensor_msgs::image_encodings::RGB8;
+        out_msg.image = inImage_;
+        image_pub_.publish(out_msg.toImageMsg());
+      }
+
+      // publish image after internal image processing
+      if (publishDebug)
+      {
+        // show also the internal image resulting from the threshold operation
+        cv_bridge::CvImage debug_msg;
+        debug_msg.header.stamp = curr_stamp;
+        debug_msg.encoding = sensor_msgs::image_encodings::MONO8;
+        debug_msg.image = mDetector_.getThresholdedImage();
+        debug_pub_.publish(debug_msg.toImageMsg());
+      }
+
+      
+      if(marker11 == 0 && markerid == 11){marker11=1;}
+      if(marker11 == 1){
+      std::cout <<"Call the server with reqId = 11"<<std::endl;
+      marker11 = 2;
+       srv.request.id = 11;
+       client.waitForExistence();
+       client.call(srv);
+       x= srv.response.x;
+       std::cout <<"the response is x = ";
+       std::cout <<x <<std::endl;  
+       moveit::planning_interface::MoveGroupInterface move_group("arm");    
+       move_group.setNamedTarget("pose17");
+       move_group.move();       
+      }
+      
+      if(marker12 == 0 && marker17==2 && markerid == 12){marker12=1;}
+      if(marker12 == 1){
+      std::cout <<"Call the server with reqId = 12";
+      marker12 = 2;
+       srv.request.id = 12;
+       client.waitForExistence();
+       client.call(srv);
+       x= srv.response.x;
+       std::cout <<"the response is x = ";
+       std::cout <<x <<std::endl;  
+       moveit::planning_interface::MoveGroupInterface move_group("arm");    
+       move_group.setNamedTarget("pose13");
+       move_group.move();  
+      }
+      
+      if(marker13 == 0 && marker12==2 && markerid == 13){marker13=1;}
+      if(marker13 == 1){
+      std::cout <<"Call the server with reqId = 13";
+      marker13 = 2;
+     srv.request.id = 13;
+       client.waitForExistence();
+       client.call(srv);
+       x= srv.response.x;
+       std::cout <<"the response is x = ";
+       std::cout <<x <<std::endl;  
+       moveit::planning_interface::MoveGroupInterface move_group("arm");    
+       move_group.setNamedTarget("pose14");
+       move_group.move();   
+      }
+      
+      if(marker14 == 0 && marker13==2 && markerid == 14){marker14=1;}
+      if(marker14 == 1){
+      std::cout <<"Call the server with reqId = 14";
+      marker14 = 2;
+     srv.request.id = 14;
+       client.waitForExistence();
+       client.call(srv);
+       x= srv.response.x;
+       std::cout <<"the response is x = ";
+       std::cout <<x <<std::endl;  
+       moveit::planning_interface::MoveGroupInterface move_group("arm");    
+       move_group.setNamedTarget("pose15");
+       move_group.move();  
+      }
+      
+      if(marker15 == 0 && marker14==2 && markerid == 15){marker15=1;}
+      if(marker15 == 1){
+      std::cout <<"Call the server with reqId = 15";
+      marker15 = 2;
+     srv.request.id = 15;
+       client.waitForExistence();
+       client.call(srv);
+       x= srv.response.x;
+       std::cout <<"the response is x = ";
+       std::cout <<x <<std::endl;  
+       moveit::planning_interface::MoveGroupInterface move_group("arm");    
+       move_group.setNamedTarget("pose16");
+       move_group.move();  
+      }
+      
+      if(marker16 == 0 && marker15==2 && markerid == 16){marker16=1;}
+      if(marker16 == 1){
+      std::cout <<"Call the server with reqId = 16";
+      marker16 = 2;
+      srv.request.id = 16;
+       client.waitForExistence();
+       client.call(srv);
+       x= srv.response.x;
+       std::cout <<"the response is x = ";
+       std::cout <<x <<std::endl;  
+       moveit::planning_interface::MoveGroupInterface move_group("arm");    
+       move_group.setNamedTarget("pose1");
+       move_group.move();
+       map_state.map_state=1;
+       pub_map.publish(map_state);  
+
+      }
+      
+      if(marker17 == 0 && marker11==2 && markerid == 17){marker17=1;}
+      if(marker17 == 1){
+      std::cout <<"Call the server with reqId = 17";
+      marker17 = 2;
+     srv.request.id = 17;
+       client.waitForExistence();
+       client.call(srv);
+       x= srv.response.x;
+       std::cout <<"the response is x = ";
+       std::cout <<x <<std::endl;  
+       moveit::planning_interface::MoveGroupInterface move_group("arm");    
+       move_group.setNamedTarget("pose12");
+       move_group.move();
+      }
+
+    }
+    catch (cv_bridge::Exception& e)
+    {
+      ROS_ERROR("cv_bridge exception: %s", e.what());
+    }
+  }
+};
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "aruco_marker_publisher");
+  ros::NodeHandle nh_;
+
+  client =  nh_.serviceClient<assignment2::RoomInformation>("/room_info");
+  pub_map = nh_.advertise<assignment2::Map_state>("/map_state", 10);
+  ArucoMarkerPublisher node;
+  
+  // Create a MoveGroupInterface object
+  moveit::planning_interface::MoveGroupInterface move_group("arm");
+  // Set the named target pose
+  //move_group.setNamedTarget("pose11");
+
+  // Plan and execute the motion
+  //move_group.move();
+  
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+    ros::waitForShutdown();
+}

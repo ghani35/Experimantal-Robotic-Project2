@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<launch>
+	
+  <!-- By default, we do not start a database (it can be large) -->
+  <arg name="db" default="false" />
+  <!-- Allow user to specify database location -->
+  <arg name="db_path" default="$(find my_robot)/default_warehouse_mongo_db" />
+
+  <!-- By default, we are not in debug mode -->
+  <arg name="debug" default="false" />
+
+  <!-- By default, we won't load or override the robot_description -->
+  <arg name="load_robot_description" default="false"/>
+	
+  <arg name="use_gui" default="false" />
+
+  <!-- Gazebo specific options -->
+  <arg name="gazebo_gui" default="true"/>
+
+  <!-- By default, use the urdf location provided from the package -->
+  <arg name="urdf_path" default="$(find robot_urdf)/urdf/robot6.urdf"/>	
+	
+	
+
+  <!-- We do not have a robot connected, so publish fake joint states -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" unless="$(arg use_gui)">
+    <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
+    <rosparam param="source_list">[/joint_states]</rosparam>
+  </node>
+  <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" if="$(arg use_gui)">
+    <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
+    <rosparam param="source_list">[/joint_states]</rosparam>
+  </node>
+
+  <!-- Given the published joint states, publish tf for the robot links -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+
+  <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
+  <include file="$(find my_robot)/launch/move_group.launch">
+    <arg name="allow_trajectory_execution" value="true"/>
+    <arg name="fake_execution" value="false"/>
+    <arg name="info" value="true"/>
+
+    <arg name="load_robot_description" value="$(arg load_robot_description)"/>
+  </include>
+
+  <!-- Run Rviz and load the default config to see the state of the move_group node -->
+  <include file="$(find my_robot)/launch/moveit_rviz.launch">
+    <arg name="rviz_config" value="$(find my_robot)/launch/moveit.rviz"/>
+    
+
+  </include>
+
+  <!-- If database loading was enabled, start mongodb as well -->
+  <include file="$(find my_robot)/launch/default_warehouse_db.launch" if="$(arg db)">
+    <arg name="moveit_warehouse_database_path" value="$(arg db_path)"/>
+  </include>	
+	
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(find assignment2)/worlds/my_mapping.rviz"  />
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="extra_gazebo_args" default=""/>
+  <arg name="gui" default="true"/>
+  <arg name="recording" default="false"/>
+  <arg name="world" default="assignment_world" />
+  <!-- Note that 'headless' is currently non-functional.  See gazebo_ros_pkgs issue #491 (-r arg does not disable
+       rendering, but instead enables recording). The arg definition has been left here to prevent breaking downstream
+       launch files, but it does nothing. -->
+  <arg name="headless" default="false"/>
+
+  <arg name="physics" default="ode"/>
+  <arg name="verbose" default="false"/>
+  <arg name="world_name" value="$(find assignment2)/worlds/$(arg world).world"/>
+  <arg name="respawn_gazebo" default="false"/>
+  <arg name="use_clock_frequency" default="false"/>
+  <arg name="pub_clock_frequency" default="100"/>
+
+  <!-- set use_sim_time flag -->
+  <param name="/use_sim_time" value="$(arg use_sim_time)"/>
+
+  <!-- set command arguments -->
+  <arg unless="$(arg paused)" name="command_arg1" value=""/>
+  <arg     if="$(arg paused)" name="command_arg1" value="-u"/>
+  <arg unless="$(arg recording)" name="command_arg2" value=""/>
+  <arg     if="$(arg recording)" name="command_arg2" value="-r"/>
+  <arg unless="$(arg verbose)" name="command_arg3" value=""/>
+  <arg     if="$(arg verbose)" name="command_arg3" value="--verbose"/>
+  <arg unless="$(arg debug)" name="script_type" value="gzserver"/>
+  <arg     if="$(arg debug)" name="script_type" value="debug"/>
+
+  <!-- start gazebo server-->
+  <group if="$(arg use_clock_frequency)">
+    <param name="gazebo/pub_clock_frequency" value="$(arg pub_clock_frequency)" />
+  </group>
+  <node name="gazebo" pkg="gazebo_ros" type="$(arg script_type)" respawn="$(arg respawn_gazebo)" output="screen"
+	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) -e $(arg physics) $(arg extra_gazebo_args) $(arg world_name)" />
+	
+  <!-- start gazebo client -->
+  <group if="$(arg gui)">
+    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
+  </group>
+	
+
+<include file="$(find my_robot)/launch/ros_controllers.launch"/>
+ 
+ 
+ 
+  <!-- <node name="marker_server" pkg="assignment2" type="marker_server" />-->
+   
+ 
+  <rosparam command="load" file="$(find assignment2)/parameters/parameters.yaml" />
+  <node pkg="assignment2" type="MarkerPublisher" name="Marker_Publisher" output="screen" launch-prefix="xterm -e" 
+  	args= "/image:=/robot/camera1/image_raw" />
+
+  <node pkg="assignment2" type="marker_server_py.py" name="marker_serverr" output="screen" launch-prefix="xterm -e"  />
+  <node pkg="assignment2" type="battery.py" name="battery" output="screen" launch-prefix="xterm -e"  />
+  <node pkg="assignment2" type="state_machine.py" name="state_machine" output="screen" launch-prefix="xterm -e"  />
+  
+  
+  <include file="$(find planning)/launch/move_base.launch"></include>
+  <include file="$(find planning)/launch/gmapping.launch"></include>
+  
+  <!-- Spawn the robot--> 
+  <arg name="model" default="$(find robot_urdf)/urdf/robot6.urdf" />
+
+  <param name="robot_description" 
+	 command="$(find xacro)/xacro --inorder $(arg model)" />
+	
+	
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	args="-urdf -model robot1 -param robot_description -x -6.0 -y 11.6 -z 0 -R 0 -P 0 -Y 1.5"/> 
+  <node pkg="armor" type="execute" name="armor_service" args="it.emarolab.armor.ARMORMainService"/>
+ 
+   
+
+</launch>
