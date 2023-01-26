@@ -62,19 +62,22 @@ Protogé is used for building the ontology
  ## Component diagram 
 ![diagram (1)](https://user-images.githubusercontent.com/91313196/209484116-8ebc2832-6c4f-4a04-bc5f-a4f6a7cfb3d3.png)
  ### 1- Marker publisher
-Marker publisher: subscribes to the topic of the camera and do image processing to get an aruco marker ID, then it send a request with the marker ID to Marker server. Based on the response it modifies the topological ontology  
- ### 2- Marker server
-It is a dictionary for the aruco markers* SLAM: build the map, localizing the robot and navigation based on move_base action server 
- ### 3- state_machine
-It controlls how the robot changes its state based on the reasoning of the topological ontology, and the battery state of the robot. This node subscribes to two topics `/battery_state` and `/map_state`, and it calls the armor server for updating the loaded ontology. The states of the robot are listed bellow.
+Marker publisher: The node subscribes to the topic of camera, then when a marker is detected its ID will be identified. It calls the marker_server_py server with the resquest of the ID of the scanned marker. It does some image processing when the marker is detected and show them.
+
+ ### 2- Marker server: It is a server that takes the request sent by the marker_publisher and for each specific ID it changes the topological map by calling armor server
+ 
+ ### 3- state_machine: It controlls how the robot changes its state based on the reasoning of the topological ontology, and the battery state of the robot. This node subscribes to two topics `/battery_state` and `/map_state`, and it calls the armor server for updating the loaded ontology. The states of the robot are listed bellow.
   * filling_map
   * moving_in_corridors
   * visiting_urgent
   * charging
+  
  ### 4- battery_controller 
  This is a publisher to the topic `/baterry_state`, it publishes different state of the battery `True`or`False` in a specific duration, the durations to be full or low are passed as **parameters**.
+ 
  ### 5- armor
  The ARMOR package is an external package used to communicate with the Cluedo OWL ontology, it is a ROS wrapper that helps to make this communication possible. For more information about ARMOR [click here](https://github.com/EmaroLab/armor_rds_tutorial)
+ 
  ### 5- SLAM
  Building the map, localizing the robot and navigation based on move_base action server
  
