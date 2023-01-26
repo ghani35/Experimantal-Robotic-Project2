@@ -119,7 +119,7 @@ There are four states in this state diagram, the task of each state is explained
 
 
 # 4. Instalation and running procedures
-1. Clone the repository in your work_space `git clone https://github.com/ghani35/Experimental-robotics-Ass1.git`
+1. Clone the repository in your work_space `git clone [https://github.com/ghani35/Experimental-robotics-Ass1.git](https://github.com/ghani35/Assignment2_Exporo.git)`
 2. go to `/root/your_work_space/src/assignment2_Exporo/assignment2/parameters`, open `parameters.yaml` file 
 3. Change the path to `path = '/root/your_ws/src/assignment2_Exporo/assignment2/src/topological_map.owl'` 
 4. (optional!) Change the other parameters if you want to test some relevent parts of the code
