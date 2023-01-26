@@ -10,13 +10,14 @@ https://drive.google.com/file/d/1tRtQF4Qn5QUGVnvx5fiwpWG7RaZG-UIU/view?usp=share
 2. Desrciption of software architecture 
    * Component diagram
    * state diagram 
-3. Instalation and running procedures
-4. Working hypothesis and environment
+3. Organization of project's files 
+4. Instalation and running procedures
+5. Working hypothesis and environment
    * System's features 
    * System's limitations
    * Possible technical improvements 
-5. Doxygen documentation
-6. Authors and Teachers contact  
+6. Doxygen documentation
+7. Authors and Teachers contact  
 # 1. Introduction 
 This github repository shows how to creat a robot model and spawn it in a given environment such that it can navigate and do patroling task. To achieve these behavior this steps are nedded 
    1. Creat a robot model such that the robot can:
@@ -113,7 +114,11 @@ There are four states in this state diagram, the task of each state is explained
 3. **Visiting_urgent**:  First, the robots checks if the battery is low goes to `CHARGING` state, else it checkes it the urgent room is reacheable by quering the object properties of the robot `canReach`, if the room can be reached it visit it and return back to the `MOVING_IN_CORRIDORS` trough the transition `visited`. If the urgent room is not reacheable it goes to `MOVING_IN_CORRIDORS` state through the transition `not_reached`, in this case the robot will change the corridors and visit it again.
 4. **CHARGING**: The robot keeps checking the state of the battery, if it is full it goes to `MOVING_IN_COORIDORS` state the the transition `charged`, otherwise, it stays in the `CHARGING` state. 
 
-# 3. Instalation and running procedures
+# 3. Organization of project's file 
+![image](https://user-images.githubusercontent.com/91313196/214841859-22fb0e2f-21d3-487a-bf22-e7e6e21a0e12.png)
+
+
+# 4. Instalation and running procedures
 1. Clone the repository in your work_space `git clone https://github.com/ghani35/Experimental-robotics-Ass1.git`
 2. go to `/root/your_work_space/src/assignment2_Exporo/assignment2/parameters`, open `parameters.yaml` file 
 3. Change the path to `path = '/root/your_ws/src/assignment2_Exporo/assignment2/src/topological_map.owl'` 
@@ -135,7 +140,7 @@ There are four states in this state diagram, the task of each state is explained
 `rosrun smach_viewer smach_viewer.py` 
 
 
-# 4. Working hypothesis and environement
+# 5. Working hypothesis and environement
 In this project there are many assumptions made on the environement in order to make the project simpler, the assumptions are explained bellow
 1. The movement of the robot from one location to another location is considered to be only one time step in the onotology, it means that if the robot takes 2 minutes to go from R1 to C1, this will be considered as one time step on the ontology
 3. Initializing the `visitedAt` data proporty of a location to different values to avoid making all of them **urgent** at the same time 
@@ -149,10 +154,10 @@ In this project there are many assumptions made on the environement in order to 
 ## Possible improvements  
 1. The time can be continuously updated and depends on the distance and speed of the robot to reach a specific location
 
-# 5. Doxygen documentation
+# 6. Doxygen documentation
 [Click here](https://ghani35.github.io/Assignment1/)
 
-# 6. Author and Teachers contacts 
+# 7. Author and Teachers contacts 
 * Author 
   * name: BAKOUR Abdelghani
   * email: bakourabdelghani1999@gmail.com
