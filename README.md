@@ -73,6 +73,8 @@ It controlls how the robot changes its state based on the reasoning of the topol
   * moving_in_corridors
   * visiting_urgent
   * charging
+ 
+ In addition to this, the node uses /move_base to send a goal for the robot to make it moving 
   
  ### 4- battery_controller 
  This is a publisher to the topic `/baterry_state`, it publishes different state of the battery `True`or`False` in a specific duration, the durations to be full or low are passed as **parameters**.
