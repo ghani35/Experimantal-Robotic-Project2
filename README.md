@@ -62,11 +62,13 @@ Protogé is used for building the ontology
  ## Component diagram 
 ![diagram (1)](https://user-images.githubusercontent.com/91313196/209484116-8ebc2832-6c4f-4a04-bc5f-a4f6a7cfb3d3.png)
  ### 1- Marker publisher
-Marker publisher: The node subscribes to the topic of camera, then when a marker is detected its ID will be identified. It calls the marker_server_py server with the resquest of the ID of the scanned marker. It does some image processing when the marker is detected and show them.
+A node subscribes to the topic of camera, then when a marker is detected its ID will be identified. It calls the marker_server_py server with the resquest of the ID of the scanned marker. It does some image processing when the marker is detected and show them.
 
- ### 2- Marker server: It is a server that takes the request sent by the marker_publisher and for each specific ID it changes the topological map by calling armor server
+ ### 2- Marker server: 
+ It is a server that takes the request sent by the marker_publisher and for each specific ID it changes the topological map by calling armor server
  
- ### 3- state_machine: It controlls how the robot changes its state based on the reasoning of the topological ontology, and the battery state of the robot. This node subscribes to two topics `/battery_state` and `/map_state`, and it calls the armor server for updating the loaded ontology. The states of the robot are listed bellow.
+ ### 3- state_machine:
+It controlls how the robot changes its state based on the reasoning of the topological ontology, and the battery state of the robot. This node subscribes to two topics `/battery_state` and `/map_state`, and it calls the armor server for updating the loaded ontology. The states of the robot are listed bellow.
   * filling_map
   * moving_in_corridors
   * visiting_urgent
