@@ -155,7 +155,7 @@ In this project there are many assumptions made on the environement in order to 
 1. The time can be continuously updated and depends on the distance and speed of the robot to reach a specific location
 
 # 6. Doxygen documentation
-[Click here](https://ghani35.github.io/Assignment1/)
+[Click here](https://ghani35.github.io/Assignment2_Exporo/)
 
 # 7. Author and Teachers contacts 
 * Author 
