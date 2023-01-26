@@ -2,18 +2,20 @@
 
 ![image](https://user-images.githubusercontent.com/91313196/201306579-1b867e35-9d8b-467a-963b-1c0c09856d1a.png)
 # Outline 
-1. Introduction 
-2. Desrciption of software architecture 
+
+1. Introduction
+2. Demo
+3. Desrciption of software architecture 
    * Component diagram
    * state diagram 
-3. Instalation and running procedures
-4. A small video showing the relevent parts of the running code
-5. Working hypothesis and environment
+4. Instalation and running procedures
+5. A small video showing the relevent parts of the running code
+6. Working hypothesis and environment
    * System's features 
    * System's limitations
    * Possible technical improvements 
-6. Doxygen documentation
-7. Authors and Teachers contact  
+7. Doxygen documentation
+8. Authors and Teachers contact  
 # 1. Introduction 
 This github repository shows how to creat a robot model and spawn it in a given environment such that it can navigate and do patroling task. To achieve these behavior this steps are nedded 
    1. Creat a robot model such that the robot can:
@@ -49,7 +51,18 @@ The finit-state machine is built in ROS environment based on [SMACH](http://wiki
   * Now
   * visitedAt
   * uregencyThreshold
- # 2. Discreption of software architecture 
+  
+
+# 2. A small video showing the relevent parts of the running code
+https://user-images.githubusercontent.com/91313196/198888618-3acce94f-d051-485e-9753-c39f3e8622dd.mp4
+
+This video shows how the state machine behaves when we have an event. 
+* phase1: The state machine is in the state `FILLING_MAP`, the user enter the last individual `D1` and telling the state machine taht the map is fully loaded.
+* phase2: State machine goes to `MOVING_IN_CORRIDORS`, then the battery is low and the state machine goes to `CHARGING`. after charging it goes back to `MOVING_IN_CORRIDORS`.
+* phase3: The room R1 becomes urgent, the SM goes to `VISITING_URGENT`. then goig back to `MOVING_IN_CORRIDORS`
+For more detail, watch the video.
+
+ # 3. Discreption of software architecture 
  ## Component diagram 
 ![diagram (1)](https://user-images.githubusercontent.com/91313196/209484116-8ebc2832-6c4f-4a04-bc5f-a4f6a7cfb3d3.png)
  ### 1- Marker publisher
@@ -105,7 +118,7 @@ There are four states in this state diagram, the task of each state is explained
 3. **Visiting_urgent**:  First, the robots checks if the battery is low goes to `CHARGING` state, else it checkes it the urgent room is reacheable by quering the object properties of the robot `canReach`, if the room can be reached it visit it and return back to the `MOVING_IN_CORRIDORS` trough the transition `visited`. If the urgent room is not reacheable it goes to `MOVING_IN_CORRIDORS` state through the transition `not_reached`, in this case the robot will change the corridors and visit it again.
 4. **CHARGING**: The robot keeps checking the state of the battery, if it is full it goes to `MOVING_IN_COORIDORS` state the the transition `charged`, otherwise, it stays in the `CHARGING` state. 
 
-# 3. Instalation and running procedures
+# 4. Instalation and running procedures
 1. Clone the repository in your work_space `git clone https://github.com/ghani35/Experimental-robotics-Ass1.git`
 2. go to `/root/your_work_space/src/assignment2_Exporo/assignment2/parameters`, open `parameters.yaml` file 
 3. Change the path to `path = '/root/your_ws/src/assignment2_Exporo/assignment2/src/topological_map.owl'` 
@@ -127,32 +140,24 @@ There are four states in this state diagram, the task of each state is explained
 `rosrun smach_viewer smach_viewer.py` 
 
 
-# 4. A small video showing the relevent parts of the running code
-https://user-images.githubusercontent.com/91313196/198888618-3acce94f-d051-485e-9753-c39f3e8622dd.mp4
-
-This video shows how the state machine behaves when we have an event. 
-* phase1: The state machine is in the state `FILLING_MAP`, the user enter the last individual `D1` and telling the state machine taht the map is fully loaded.
-* phase2: State machine goes to `MOVING_IN_CORRIDORS`, then the battery is low and the state machine goes to `CHARGING`. after charging it goes back to `MOVING_IN_CORRIDORS`.
-* phase3: The room R1 becomes urgent, the SM goes to `VISITING_URGENT`. then goig back to `MOVING_IN_CORRIDORS`
-For more detail, watch the video.
-# 5. Working hypothesis and environement
+# 6. Working hypothesis and environement
 In this project there are many assumptions made on the environement in order to make the project simpler, the assumptions are explained bellow
 1. The movement of the robot from one location to another location is considered to be only one time step in the onotology, it means that if the robot takes 2 minutes to go from R1 to C1, this will be considered as one time step on the ontology
 3. Initializing the `visitedAt` data proporty of a location to different values to avoid making all of them **urgent** at the same time 
 4. When a robot is in a specific location, it can reach only the locations that need **one door** transmition
 
 ## Pssible Limitations
-1. If the battery is low during the transition from one location to another location, the robot will not cancel the goal and go to charging, but it reache the current target than it goes to to charge
+1. If the battery is low during the transition from one location to another location, the robot will not cancel the goal and go to charging, but it reaches the current target than it goes to charge
 2. The time step for any transitions between two locations is constant from the ontology point of view while it is not constant in the simulation 
 
 
 ## Possible improvements  
-2. The time can be continuously updated and depends on the distance and speed of the robot to reach a specific location
+1. The time can be continuously updated and depends on the distance and speed of the robot to reach a specific location
 
-# 6. Doxygen documentation
+# 7. Doxygen documentation
 [Click here](https://ghani35.github.io/Assignment1/)
 
-# 7. Author and Teachers contacts 
+# 8. Author and Teachers contacts 
 * Author 
   * name: BAKOUR Abdelghani
   * email: bakourabdelghani1999@gmail.com
