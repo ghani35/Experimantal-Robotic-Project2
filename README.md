@@ -1,21 +1,22 @@
 # Assignment2_Exporo
 
-![image](https://user-images.githubusercontent.com/91313196/201306579-1b867e35-9d8b-467a-963b-1c0c09856d1a.png)
+# Demo
+
+https://drive.google.com/file/d/1tRtQF4Qn5QUGVnvx5fiwpWG7RaZG-UIU/view?usp=share_link
+
 # Outline 
 
 1. Introduction
-2. Demo
-3. Desrciption of software architecture 
+2. Desrciption of software architecture 
    * Component diagram
    * state diagram 
-4. Instalation and running procedures
-5. A small video showing the relevent parts of the running code
-6. Working hypothesis and environment
+3. Instalation and running procedures
+4. Working hypothesis and environment
    * System's features 
    * System's limitations
    * Possible technical improvements 
-7. Doxygen documentation
-8. Authors and Teachers contact  
+5. Doxygen documentation
+6. Authors and Teachers contact  
 # 1. Introduction 
 This github repository shows how to creat a robot model and spawn it in a given environment such that it can navigate and do patroling task. To achieve these behavior this steps are nedded 
    1. Creat a robot model such that the robot can:
@@ -25,7 +26,10 @@ This github repository shows how to creat a robot model and spawn it in a given 
    2. Build a topolofical ontology strating from the data collected in aruco codes 
    3. Creat a state machine
    
-The finit-state machine is built in ROS environment based on [SMACH](http://wiki.ros.org/smach/Tutorials) ros-package, and how to build a topological onotology of the wrold, in this small project, Protogé is used for building the ontology, [ARMOR](https://github.com/EmaroLab/armor_rds_tutorial) service is used for access and modify the ontology. 
+The finit-state machine is built in ROS environment based on [SMACH](http://wiki.ros.org/smach/Tutorials) ros-package.
+Protogé is used for building the ontology
+[ARMOR](https://github.com/EmaroLab/armor_rds_tutorial) service is used for access and modify the ontology. 
+
 #### Environment
  It is a 2D-environmen built up with 4 rooms `R1 R2 R3 R4`, 2 corridors `C1 C2` and one special room `E` used as a waiting room befor filling the map, and a charging station as well. And 7 doors `D1 ... D7`  
  
@@ -33,7 +37,7 @@ The finit-state machine is built in ROS environment based on [SMACH](http://wiki
 
 
 #### Senario
- We have a survallience robot that moves in a 2D environment. First the robot waits in room **E** untill the whol map  is loaded into the ontology, then the robot keeps moving between the corridors **C1** and **C2** for infinit time. The robot must go to the charging station **E** when its battery is low, otherwise he must visit the **urgent** rooms if any, then goes back to its normal behavior moving between cooridors.
+ We have a survallience robot that moves in a 2D environment. First the robot waits in room **E** untill the whol map  is loaded into the ontology by scaning the arUco markers, then the robot keeps moving between the corridors **C1** and **C2** for infinit time. The robot must go to the charging station **E** when its battery is low, It must visit the **urgent** rooms if any, then goes back to its normal behavior moving between cooridors.
  
  #### Ontology
 * Entity 
@@ -53,16 +57,7 @@ The finit-state machine is built in ROS environment based on [SMACH](http://wiki
   * uregencyThreshold
   
 
-# 2. A small video showing the relevent parts of the running code
-https://user-images.githubusercontent.com/91313196/198888618-3acce94f-d051-485e-9753-c39f3e8622dd.mp4
-
-This video shows how the state machine behaves when we have an event. 
-* phase1: The state machine is in the state `FILLING_MAP`, the user enter the last individual `D1` and telling the state machine taht the map is fully loaded.
-* phase2: State machine goes to `MOVING_IN_CORRIDORS`, then the battery is low and the state machine goes to `CHARGING`. after charging it goes back to `MOVING_IN_CORRIDORS`.
-* phase3: The room R1 becomes urgent, the SM goes to `VISITING_URGENT`. then goig back to `MOVING_IN_CORRIDORS`
-For more detail, watch the video.
-
- # 3. Discreption of software architecture 
+ # 2. Discreption of software architecture 
  ## Component diagram 
 ![diagram (1)](https://user-images.githubusercontent.com/91313196/209484116-8ebc2832-6c4f-4a04-bc5f-a4f6a7cfb3d3.png)
  ### 1- Marker publisher
@@ -118,7 +113,7 @@ There are four states in this state diagram, the task of each state is explained
 3. **Visiting_urgent**:  First, the robots checks if the battery is low goes to `CHARGING` state, else it checkes it the urgent room is reacheable by quering the object properties of the robot `canReach`, if the room can be reached it visit it and return back to the `MOVING_IN_CORRIDORS` trough the transition `visited`. If the urgent room is not reacheable it goes to `MOVING_IN_CORRIDORS` state through the transition `not_reached`, in this case the robot will change the corridors and visit it again.
 4. **CHARGING**: The robot keeps checking the state of the battery, if it is full it goes to `MOVING_IN_COORIDORS` state the the transition `charged`, otherwise, it stays in the `CHARGING` state. 
 
-# 4. Instalation and running procedures
+# 3. Instalation and running procedures
 1. Clone the repository in your work_space `git clone https://github.com/ghani35/Experimental-robotics-Ass1.git`
 2. go to `/root/your_work_space/src/assignment2_Exporo/assignment2/parameters`, open `parameters.yaml` file 
 3. Change the path to `path = '/root/your_ws/src/assignment2_Exporo/assignment2/src/topological_map.owl'` 
@@ -140,7 +135,7 @@ There are four states in this state diagram, the task of each state is explained
 `rosrun smach_viewer smach_viewer.py` 
 
 
-# 6. Working hypothesis and environement
+# 4. Working hypothesis and environement
 In this project there are many assumptions made on the environement in order to make the project simpler, the assumptions are explained bellow
 1. The movement of the robot from one location to another location is considered to be only one time step in the onotology, it means that if the robot takes 2 minutes to go from R1 to C1, this will be considered as one time step on the ontology
 3. Initializing the `visitedAt` data proporty of a location to different values to avoid making all of them **urgent** at the same time 
@@ -154,10 +149,10 @@ In this project there are many assumptions made on the environement in order to 
 ## Possible improvements  
 1. The time can be continuously updated and depends on the distance and speed of the robot to reach a specific location
 
-# 7. Doxygen documentation
+# 5. Doxygen documentation
 [Click here](https://ghani35.github.io/Assignment1/)
 
-# 8. Author and Teachers contacts 
+# 6. Author and Teachers contacts 
 * Author 
   * name: BAKOUR Abdelghani
   * email: bakourabdelghani1999@gmail.com
