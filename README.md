@@ -146,7 +146,7 @@ In this project there are many assumptions made on the environement in order to 
 3. Initializing the `visitedAt` data proporty of a location to different values to avoid making all of them **urgent** at the same time 
 4. When a robot is in a specific location, it can reach only the locations that need **one door** transmition
 
-## Pssible Limitations
+## Possible Limitations
 1. If the battery is low during the transition from one location to another location, the robot will not cancel the goal and go to charging, but it reaches the current target than it goes to charge
 2. The time step for any transitions between two locations is constant from the ontology point of view while it is not constant in the simulation 
 
